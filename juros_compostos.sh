@@ -1,4 +1,4 @@
-##!/bin/bash 
+##!/usr/bin/env bash
 #
 #
 #
@@ -30,15 +30,40 @@
 #
 #
 
+while [ "$continue" != "n" -a "$continue" != "N" ]
+do
+	echo "Capital investido(Ex.:1.000,00):"
+	read capital
+
+	caracterInvalido=`echo $capital | sed 's/[0-9.,]//g' | wc -w`
+
+	if [ "$caracterInvalido" -eq 0 ];then
+		virgula=`echo $capital | sed 's/[^,]//g' | wc -w`
+		
+		if [ "$virgula" -eq 0 ];then
+			capital=`echo $capital | sed 's/[.]//g'`
+		else
+			valorIntegral=`echo $capital | sed 's/,.*$//g' | sed 's/[.]//g'`
+			centavos=`echo $capital | sed 's/^.*,//g'`
+			capital=`echo $valorIntegral"."$centavos`
+		fi
+	
+		echo "Taxa de juros"
+		read juros
+		juros=`echo $juros | sed 's/,/./g'`
+
+		echo "Tempo"
+		read tempo
+		
+		montante=`echo $capital*\(1+$juros\)^$tempo | bc -l | awk '{printf "%.2f\n",$1}'`
+		
+		echo "Resultado: R$"$montante
+	else
+		echo "Caracter inválido!"
+	fi
+
+	echo "Deseja continuar ? [S/n]"
+	read continue
+done
 
 
-echo Capital
-read capital
-
-echo Taxa de juros
-read juros
-
-echo Tempo
-read tempo
-
-echo Resultado: R$ $(bc -l <<< $capital*\(1+$juros\)^$tempo | awk '{printf "%.2f\n",$1}')
